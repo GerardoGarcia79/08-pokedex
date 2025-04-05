@@ -1,8 +1,8 @@
+import React from 'react';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {HomeScreen} from '../screens/home/HomeScreen';
 import {SearchScreen} from '../screens/search/SearchScreen';
 import {PokemonScreen} from '../screens/pokemon/PokemonScreen';
-import {createStaticNavigation} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 export type RootStackParams = {
   HomeScreen: undefined;
@@ -10,14 +10,16 @@ export type RootStackParams = {
   SearchScreen: undefined;
 };
 
-const RootStack = createNativeStackNavigator<RootStackParams>({
-  screens: {
-    HomeScreen: HomeScreen,
-    PokemonScreen: PokemonScreen,
-    SearchScreen: SearchScreen,
-  },
-});
+const Stack = createNativeStackNavigator<RootStackParams>();
 
-const StackNavigator = createStaticNavigation(RootStack);
+const StackNavigator = () => {
+  return (
+    <Stack.Navigator initialRouteName="HomeScreen">
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="PokemonScreen" component={PokemonScreen} />
+      <Stack.Screen name="SearchScreen" component={SearchScreen} />
+    </Stack.Navigator>
+  );
+};
 
 export default StackNavigator;

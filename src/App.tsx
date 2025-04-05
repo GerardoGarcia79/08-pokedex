@@ -1,13 +1,13 @@
 import '../gesture-handler';
 import React from 'react';
+import {ThemeContextProvider} from './presentation/context/ThemeContext';
 import StackNavigator from './presentation/navigator/StackNavigator';
-import {PaperProvider} from 'react-native-paper';
 
 const App = () => {
   return (
-    <PaperProvider>
+    <ThemeContextProvider>
       <StackNavigator />
-    </PaperProvider>
+    </ThemeContextProvider>
   );
 };
 

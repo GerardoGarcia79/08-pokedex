@@ -7,7 +7,7 @@ import {useQuery} from '@tanstack/react-query';
 export const HomeScreen = () => {
   const {isLoading} = useQuery({
     queryKey: ['pokemons'],
-    queryFn: () => getPokemons(),
+    queryFn: () => getPokemons(1),
     staleTime: 1000 * 60 * 60, // 60 min
   });
 

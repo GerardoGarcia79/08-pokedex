@@ -4,6 +4,7 @@ import type {
   PokeAPIPaginatedResponse,
   PokeAPIPokemon,
 } from '../../infrastructure/interfaces/pokeapi.interfaces';
+import {PokemonMapper} from '../../infrastructure/mappers/pokemon.mapper';
 
 export const getPokemons = async (
   page: number,
@@ -16,14 +17,15 @@ export const getPokemons = async (
     const pokemonPromises = data.results.map(info => {
       return pokeApi.get<PokeAPIPokemon>(info.url);
     });
-
     const pokeApiPokemons = await Promise.all(pokemonPromises);
 
-    console.log(pokeApiPokemons);
+    const pokemons = pokeApiPokemons.map(pokemon =>
+      PokemonMapper.pokeApiPokemonToEntity(pokemon.data),
+    );
 
-    console.log(data);
+    console.log(pokemons[0]);
 
-    return [];
+    return pokemons;
   } catch (error) {
     throw new Error('Error getting pokemons');
   }

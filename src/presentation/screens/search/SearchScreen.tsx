@@ -1,5 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable curly */
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react-native/no-inline-styles */
-import React from 'react';
+import React, {useMemo, useState} from 'react';
 import {FlatList, View} from 'react-native';
 import {globalTheme} from '../../../config/theme/global-theme';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -12,11 +15,30 @@ import {getPokemonsNamesWithId} from '../../../actions/pokemons';
 export const SearchScreen = () => {
   const theme = useTheme();
   const {top} = useSafeAreaInsets();
+  const [term, setTerm] = useState('');
 
   const {isLoading, data: pokemonNameList = []} = useQuery({
     queryKey: ['pokemons', 'all'],
     queryFn: () => getPokemonsNamesWithId(),
   });
+
+  // TODO: Debounce
+  const pokemonNameIdList = useMemo(() => {
+    // Es un número
+    if (!isNaN(Number(term))) {
+      const pokemon = pokemonNameList.find(
+        pokemon => pokemon.id === Number(term),
+      );
+      return pokemon ? [pokemon] : [];
+    }
+
+    if (term.length === 0) return [];
+    if (term.length < 3) return [];
+
+    return pokemonNameList.filter(pokemon =>
+      pokemon.name.includes(term.toLowerCase()),
+    );
+  }, [term]);
 
   return (
     <View style={[globalTheme.globalMargin, {paddingTop: top + 10}]}>
@@ -25,13 +47,13 @@ export const SearchScreen = () => {
         mode="flat"
         autoFocus
         autoCorrect={false}
-        onChangeText={value => console.log(value)}
-        value=""
+        onChangeText={value => setTerm(value)}
+        value={term}
         style={{backgroundColor: theme.colors.background}}
       />
 
       {isLoading && <ActivityIndicator style={{paddingTop: 20}} />}
-      <Text>{JSON.stringify(pokemonNameList, null, 2)}</Text>
+      <Text>{JSON.stringify(pokemonNameIdList, null, 2)}</Text>
 
       <FlatList
         data={[] as Pokemon[]}

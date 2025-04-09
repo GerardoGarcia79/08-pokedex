@@ -1,16 +1,19 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable curly */
 /* eslint-disable @typescript-eslint/no-shadow */
-/* eslint-disable react-native/no-inline-styles */
 import React, {useMemo, useState} from 'react';
 import {FlatList, View} from 'react-native';
 import {globalTheme} from '../../../config/theme/global-theme';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ActivityIndicator, Text, TextInput, useTheme} from 'react-native-paper';
+import {ActivityIndicator, TextInput, useTheme} from 'react-native-paper';
 import {PokemonCard} from '../../components/pokemons/PokemonCard';
-import {Pokemon} from '../../../domain/entities/pokemon';
 import {useQuery} from '@tanstack/react-query';
-import {getPokemonsNamesWithId} from '../../../actions/pokemons';
+import {
+  getPokemonsByIds,
+  getPokemonsNamesWithId,
+} from '../../../actions/pokemons';
+import {FullScreenLoader} from '../../components/ui/FullScreenLoader';
 
 export const SearchScreen = () => {
   const theme = useTheme();
@@ -40,6 +43,17 @@ export const SearchScreen = () => {
     );
   }, [term]);
 
+  const {isLoading: isLoadingPokemons, data: pokemons = []} = useQuery({
+    queryKey: ['pokemons', 'by', pokemonNameIdList],
+    queryFn: () =>
+      getPokemonsByIds(pokemonNameIdList.map(pokemon => pokemon.id)),
+    staleTime: 1000 * 60 * 5, //5 mins
+  });
+
+  if (isLoading) {
+    return <FullScreenLoader />;
+  }
+
   return (
     <View style={[globalTheme.globalMargin, {paddingTop: top + 10}]}>
       <TextInput
@@ -52,16 +66,16 @@ export const SearchScreen = () => {
         style={{backgroundColor: theme.colors.background}}
       />
 
-      {isLoading && <ActivityIndicator style={{paddingTop: 20}} />}
-      <Text>{JSON.stringify(pokemonNameIdList, null, 2)}</Text>
+      {isLoadingPokemons && <ActivityIndicator style={{paddingTop: 20}} />}
 
       <FlatList
-        data={[] as Pokemon[]}
+        data={pokemons}
         keyExtractor={(pokemon, index) => `${pokemon.id}-${index}`}
         numColumns={2}
-        style={{paddingTop: top + 20}}
+        style={{paddingTop: top}}
         renderItem={({item}) => <PokemonCard pokemon={item} />}
         showsVerticalScrollIndicator={false}
+        ListFooterComponent={<View style={{height: 120}} />}
       />
     </View>
   );

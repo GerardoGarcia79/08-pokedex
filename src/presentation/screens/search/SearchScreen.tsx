@@ -1,14 +1,22 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {FlatList, View} from 'react-native';
 import {globalTheme} from '../../../config/theme/global-theme';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {TextInput, useTheme} from 'react-native-paper';
+import {ActivityIndicator, Text, TextInput, useTheme} from 'react-native-paper';
 import {PokemonCard} from '../../components/pokemons/PokemonCard';
 import {Pokemon} from '../../../domain/entities/pokemon';
+import {useQuery} from '@tanstack/react-query';
+import {getPokemonsNamesWithId} from '../../../actions/pokemons';
 
 export const SearchScreen = () => {
   const theme = useTheme();
   const {top} = useSafeAreaInsets();
+
+  const {isLoading, data: pokemonNameList = []} = useQuery({
+    queryKey: ['pokemons', 'all'],
+    queryFn: () => getPokemonsNamesWithId(),
+  });
 
   return (
     <View style={[globalTheme.globalMargin, {paddingTop: top + 10}]}>
@@ -22,7 +30,8 @@ export const SearchScreen = () => {
         style={{backgroundColor: theme.colors.background}}
       />
 
-      {/* <ActivityIndicator style={{paddingTop: 20}} /> */}
+      {isLoading && <ActivityIndicator style={{paddingTop: 20}} />}
+      <Text>{JSON.stringify(pokemonNameList, null, 2)}</Text>
 
       <FlatList
         data={[] as Pokemon[]}
